@@ -292,3 +292,6 @@ Players can edit this file directly if they want. On next load, `ConfigState.loa
 | `ConfigState` | Read/write enabled state, load/save to disk |
 | `ConfigScreen` | The in-game GUI screen |
 | `ConfigScreenFactory` | Creates a ModMenu-compatible screen factory |
+
+
+<b><i>Inspired by a private mod
