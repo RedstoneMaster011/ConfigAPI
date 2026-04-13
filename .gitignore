@@ -3,3 +3,9 @@
 /build/
 /build/classes/java/main/
 /run/
+/run/downloads/
+/run/data/
+/run/config/
+/run/saves/
+/run/options.txt
+/run/usercache.json

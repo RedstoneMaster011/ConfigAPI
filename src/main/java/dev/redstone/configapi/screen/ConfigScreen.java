@@ -235,10 +235,12 @@ public final class ConfigScreen extends Screen {
             case TEXT, NUMBER -> {
                 TextFieldWidget tw = textWidgets.get(opt.id());
                 if (tw != null) {
-                    ctx.fill(tw.getX() - 1, tw.getY() - 1, tw.getX() + tw.getWidth() + 1,
-                            tw.getY() + tw.getHeight() + 1, INPUT_BORDER);
-                    ctx.fill(tw.getX(), tw.getY(), tw.getX() + tw.getWidth(),
-                            tw.getY() + tw.getHeight(), INPUT_BG);
+                    int boxX = controlX - 15;
+                    int boxW = controlWidth(opt);
+                    ctx.fill(boxX - 1, controlY - 1, boxX + boxW + 1,
+                            controlY + TEXT_INPUT_H + 1, INPUT_BORDER);
+                    ctx.fill(boxX, controlY, boxX + boxW,
+                            controlY + TEXT_INPUT_H, INPUT_BG);
                 }
             }
         }
@@ -342,7 +344,7 @@ public final class ConfigScreen extends Screen {
             int controlY = rowY + (h - TEXT_INPUT_H) / 2;
 
             TextFieldWidget tw = new TextFieldWidget(textRenderer,
-                    controlX - 15, controlY, controlWidth(opt), TEXT_INPUT_H, Text.literal(opt.name()));
+                    controlX - 14, controlY + 3, controlWidth(opt), TEXT_INPUT_H, Text.literal(opt.name()));
             tw.setMaxLength(opt.inputType() == ConfigOption.InputType.NUMBER ? 10 : opt.maxTextLength());
             tw.setText(pendingState.getOrDefault(opt.id(), opt.defaultValueString()));
             tw.setDrawsBackground(false);
