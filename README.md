@@ -43,7 +43,7 @@ The `include` line is important — it tells Fabric's loom to nest ConfigAPI ins
 
 ```json
 "depends": {
-    "configapi": "*"
+"configapi": "*"
 }
 ```
 
@@ -63,21 +63,37 @@ public class MyMod implements ModInitializer {
     @Override
     public void onInitialize() {
 
+        // Toggle (on/off switch)
         ConfigRegistry.register(MOD_ID,
-            new ConfigOption.Builder("my_feature", "My Feature")
-                .description("Does something cool.")
-                .badges("Client", "blue", "Visual", "cyan")
-                .defaultEnabled(true)
-                .build()
+                new ConfigOption.Builder("my_feature", "My Feature")
+                        .description("Does something cool.")
+                        .badges("Client", "blue", "Visual", "cyan")
+                        .defaultEnabled(true)
+                        .build()
         );
 
+        // Text input
         ConfigRegistry.register(MOD_ID,
-            new ConfigOption.Builder("experimental_thing", "Experimental Thing")
-                .description("Might cause issues.")
-                .badges("Server", "green")
-                .experimental(true)
-                .requiresNewWorld(true)
-                .build()
+                new ConfigOption.Builder("my_text", "My Text")
+                        .description("A custom string value.")
+                        .textInput("Hello World", 64)
+                        .build()
+        );
+
+        // Number input (integer)
+        ConfigRegistry.register(MOD_ID,
+                new ConfigOption.Builder("my_number", "My Number")
+                        .description("Pick a number between 0 and 100.")
+                        .numberInput(10, 0, 100)
+                        .build()
+        );
+
+        // Slider (float)
+        ConfigRegistry.register(MOD_ID,
+                new ConfigOption.Builder("my_slider", "My Slider")
+                        .description("Drag to set a value between 0.0 and 1.0.")
+                        .slider(0.5f, 0.0f, 1.0f, 0.05f)
+                        .build()
         );
 
         // Load saved state from disk (or seed defaults if first run)
@@ -86,20 +102,20 @@ public class MyMod implements ModInitializer {
 }
 ```
 
-### 2. Check option state at runtime
+### 2. Read option values at runtime
 
 ```java
-boolean enabled = ConfigState.isEnabled("my_mod", "my_feature");
-
-if (enabled) {
-    // do the thing
-}
+boolean toggle = ConfigState.getBoolean("my_mod", "my_feature");
+String  text   = ConfigState.getString ("my_mod", "my_text");
+int     number = ConfigState.getInt    ("my_mod", "my_number");
+float   slider = ConfigState.getFloat  ("my_mod", "my_slider");
 ```
 
-### 3. Toggle programmatically (optional)
+### 3. Write values programmatically (optional)
 
 ```java
-ConfigState.setEnabled("my_mod", "my_feature", true);
+ConfigState.setValue("my_mod", "my_feature", "true");
+ConfigState.setValue("my_mod", "my_slider",  "0.75");
 ConfigState.save("my_mod"); // persist to disk
 ```
 
@@ -107,19 +123,101 @@ Config is saved to `.minecraft/config/configapi/<namespace>.json` automatically 
 
 ---
 
+## Input Types
+
+Every option has an input type that controls what control is shown in the config screen. The type is set by which builder method you call — if you don't call any, it defaults to a toggle.
+
+### Toggle
+
+An on/off switch. This is the default input type.
+
+```java
+new ConfigOption.Builder("my_toggle", "My Toggle")
+    .defaultEnabled(true)   // default: false
+    .build()
+```
+
+Read at runtime:
+```java
+boolean on = ConfigState.getBoolean("my_mod", "my_toggle");
+```
+
+---
+
+### Text Input
+
+A free-form text field.
+
+```java
+new ConfigOption.Builder("my_text", "My Text")
+    .textInput("default value", 128)  // (defaultValue, maxLength)
+    .build()
+```
+
+Read at runtime:
+```java
+String value = ConfigState.getString("my_mod", "my_text");
+```
+
+---
+
+### Number Input
+
+An integer input field. The value is clamped to `[min, max]` as the player types.
+
+```java
+new ConfigOption.Builder("my_number", "My Number")
+    .numberInput(10, 0, 100)  // (defaultValue, min, max)
+    .build()
+```
+
+Read at runtime:
+```java
+int value = ConfigState.getInt("my_mod", "my_number");
+```
+
+---
+
+### Slider
+
+A draggable float slider.
+
+```java
+new ConfigOption.Builder("my_slider", "My Slider")
+    .slider(0.5f, 0.0f, 1.0f, 0.05f)  // (defaultValue, min, max, step)
+    .build()
+```
+
+- **step** controls the snap increment — `0.05f` snaps to `0.0, 0.05, 0.10, ...`
+- The displayed value trims trailing zeros (`0.5` not `0.50`)
+
+Read at runtime:
+```java
+float value = ConfigState.getFloat("my_mod", "my_slider");
+```
+
+---
+
 ## ConfigOption Builder Reference
 
 ```java
 new ConfigOption.Builder("option_id", "Display Name")
+    // metadata
     .description("Shown under the name in the config screen.")
-    .category("General")             // for your own organisation, not shown in UI yet
-    .badges("Label", "color", ...)   // see Badge Colors section below
-    .defaultEnabled(true)            // default: false
-    .experimental(true)              // shows an "Experimental" badge automatically
-    .requiresNewWorld(true)          // shows a "New World" badge automatically
-    .compatible(false)               // marks the option as unsupported/greyed out
-    .conflicts(Set.of("other_id"))   // prompts the player when enabling conflicting options
-    .supportNote("Some note")        // currently stored, reserved for future UI use
+    .category("General")              // for your own organisation, not shown in UI yet
+    .badges("Label", "color", ...)    // see Badge Colors section below
+    .experimental(true)               // shows an "Experimental" badge automatically
+    .requiresNewWorld(true)           // shows a "New World" badge automatically
+    .compatible(false)                // marks the option as unsupported/greyed out
+    .conflicts(Set.of("other_id"))    // prompts the player when enabling conflicting options
+    .supportNote("Some note")         // currently stored, reserved for future UI use
+
+    // input type — pick one (default is toggle)
+    .defaultEnabled(true)             // TOGGLE: default on/off state
+    .textInput("default", 128)        // TEXT:   default value, max character length
+    .numberInput(0, 0, 100)           // NUMBER: default, min, max
+    .slider(0.5f, 0f, 1f, 0.05f)     // SLIDER: default, min, max, step
+
     .build()
 ```
 
@@ -132,6 +230,8 @@ Badges are defined as alternating label/color pairs passed to `.badges()`:
 ```java
 .badges("Client", "blue", "Visual", "cyan", "Special", "#FF4444")
 ```
+
+You can also add a single badge with a raw ARGB int using `.badge(label, argbColor)`.
 
 ### Named Colors
 
@@ -179,6 +279,8 @@ ConfigRegistry.register(MOD_ID,
         .build()
 );
 ```
+
+> Conflict resolution only applies to **toggle** options.
 
 ---
 
@@ -255,7 +357,7 @@ Players get the following out of the box with no extra work from you:
 - **Search** — filters by name, description, category, and badge labels
 - **Sort** — alphabetical or enabled-first
 - **Filters** — hide/show experimental options, show only enabled options
-- **Conflict prompts** — automatic UI when enabling a conflicting option
+- **Conflict prompts** — automatic UI when enabling a conflicting toggle option
 - **Reset to defaults** — with a confirmation prompt
 - **Persistent state** — saved to `config/configapi/<namespace>.json` on Done
 
@@ -273,13 +375,15 @@ Example:
 
 ```json
 {
-  "my_feature": true,
-  "experimental_thing": false,
-  "classic_hud": true
+  "my_feature": "true",
+  "my_text": "Hello World",
+  "my_number": "10",
+  "my_slider": "0.5",
+  "classic_hud": "true"
 }
 ```
 
-Players can edit this file directly if they want. On next load, `ConfigState.load()` will pick it up.
+All values are stored as strings regardless of type. On next load, `ConfigState.load()` will pick them up and each typed getter (`getBoolean`, `getInt`, `getFloat`, `getString`) will parse them back correctly. Players can edit this file directly.
 
 ---
 
@@ -289,9 +393,31 @@ Players can edit this file directly if they want. On next load, `ConfigState.loa
 |---|---|
 | `ConfigOption` + `ConfigOption.Builder` | Define a single config option |
 | `ConfigRegistry` | Register and look up options by namespace |
-| `ConfigState` | Read/write enabled state, load/save to disk |
+| `ConfigState` | Read/write values, load/save to disk |
 | `ConfigScreen` | The in-game GUI screen |
 | `ConfigScreenFactory` | Creates a ModMenu-compatible screen factory |
 
+### `ConfigState` method reference
 
-<b><i>Inspired by a private mod
+| Method | Returns | Use for |
+|---|---|---|
+| `getBoolean(ns, id)` | `boolean` | Toggle options |
+| `getString(ns, id)` | `String` | Text input options |
+| `getInt(ns, id)` | `int` | Number input options |
+| `getFloat(ns, id)` | `float` | Slider options |
+| `getRaw(ns, id)` | `String` | Any option, unparsed |
+| `setValue(ns, id, value)` | `void` | Write any value as string |
+| `load(ns)` | `void` | Call once in `onInitialize()` |
+| `save(ns)` | `void` | Persist to disk manually |
+| `resetToDefaults(ns)` | `void` | Reset all options and save |
+| `enabledIds(ns)` | `Set<String>` | All currently-enabled toggle ids |
+
+### `ConfigRegistry` method reference
+
+| Method | Use for |
+|---|---|
+| `register(ns, option)` | Register a single option |
+| `registerAll(ns, options...)` | Register multiple options at once |
+| `getOptions(ns)` | Get all options for a namespace |
+| `find(ns, id)` | Look up a specific option by id |
+| `getNamespaces()` | All registered namespaces |
