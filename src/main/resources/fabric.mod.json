@@ -6,6 +6,7 @@
   "description": "A feature-toggle config API with a searchable, filterable ModMenu screen.",
   "authors": ["redstone"],
   "license": "MIT",
+  "icon": "assets/configapi/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
