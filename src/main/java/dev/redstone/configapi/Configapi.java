@@ -92,7 +92,7 @@ public class Configapi implements ModInitializer {
 
         ConfigState.load(MOD_ID);
 
-        // ── Reading values at runtime ──────────────────────────────────────
+        // ── Reading values at runtime ───────────────────────────────────────
         // Use these anywhere in your mod after ConfigState.load() has been called:
         //
         // boolean toggle = ConfigState.getBoolean(MOD_ID, "my_toggle");
