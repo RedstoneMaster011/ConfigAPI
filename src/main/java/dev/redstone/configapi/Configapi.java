@@ -52,35 +52,11 @@ public class Configapi implements ModInitializer {
 
         ConfigRegistry.register(MOD_ID,
                 new ConfigOption.Builder("experimental_feature", "Experimental Feature")
-                        .description("Generates massive crystalline caverns. Might be laggy!")
+                        .description("Experimental")
                         .badges("Server", "green")
                         .defaultEnabled(false)
                         .experimental(true)
                         .requiresNewWorld(true)
-                        .build()
-        );
-
-        ConfigRegistry.register(MOD_ID,
-                new ConfigOption.Builder("classic_hud", "Classic HUD")
-                        .description("Uses the legacy 1.8 style interface.")
-                        .badges("Client", "blue", "Cosmetic", "gray")
-                        .conflicts(Set.of("modern_hud"))
-                        .build()
-        );
-
-        ConfigRegistry.register(MOD_ID,
-                new ConfigOption.Builder("modern_hud", "Modern HUD")
-                        .description("A sleek, minimalist interface.")
-                        .badges("Client", "blue", "Cosmetic", "gray")
-                        .conflicts(Set.of("classic_hud"))
-                        .build()
-        );
-
-        // TOGGLE — incompatible/unsupported option
-        ConfigRegistry.register(MOD_ID,
-                new ConfigOption.Builder("unsupported_tweak", "Legacy Physics")
-                        .description("Currently disabled due to bugs.")
-                        .compatible(false)
                         .build()
         );
 
