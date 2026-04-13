@@ -6,9 +6,7 @@ A simple, flexible config screen API for Fabric mods. Drop in the JAR, register 
 
 ---
 
-## Installation (JAR-in-JAR / Local)
-
-Since ConfigAPI is not hosted on a mod repository, you need to bundle the JAR directly into your mod.
+## Installation
 
 ### 1. Add the JAR to your project
 
