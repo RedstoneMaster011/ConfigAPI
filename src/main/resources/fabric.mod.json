@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "configapi",
+  "version": "1.0.0",
+  "name": "ConfigAPI",
+  "description": "A feature-toggle config API with a searchable, filterable ModMenu screen.",
+  "authors": ["redstone"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.redstone.configapi.Configapi"
+    ],
+    "modmenu": [
+      "dev.redstone.configapi.integrations.ModMenuIntegration"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "fabric-api": "*",
+    "minecraft": ">=1.21 <=1.21.11",
+    "java": ">=21"
+  }
+}
