@@ -1,7 +1,10 @@
 {
-  "id1": true,
-  "uhh_smh": false,
-  "test1": false,
-  "test2": false,
-  "unsupported_tweak": false
+  "my_toggle": "true",
+  "my_text": "Hello World",
+  "my_number": "10",
+  "my_slider": "0.5",
+  "experimental_feature": "false",
+  "classic_hud": "false",
+  "modern_hud": "false",
+  "unsupported_tweak": "false"
 }

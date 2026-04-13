@@ -18,59 +18,86 @@ public class Configapi implements ModInitializer {
     public void onInitialize() {
         LOGGER.info("[ConfigAPI] Initialized.");
 
+        // TOGGLE — a simple on/off boolean option
         ConfigRegistry.register(MOD_ID,
-                new ConfigOption.Builder("id1", "Enhanced uhh nothing")
-                        .description("Improves smooth lighting transitions.")
-                        .badges("hmm", "blue", "cool", "cyan")
+                new ConfigOption.Builder("my_toggle", "My Toggle")
+                        .description("A simple on/off option.")
+                        .badges("Client", "blue")
                         .defaultEnabled(true)
                         .build()
         );
 
+        // TEXT — a freeform string input
         ConfigRegistry.register(MOD_ID,
-                new ConfigOption.Builder("uhh_smh", "Experimental something")
+                new ConfigOption.Builder("my_text", "My Text")
+                        .description("Type anything you want here.")
+                        .badges("Text", "purple")
+                        .textInput("Hello World", 64)
+                        .build()
+        );
+
+        // NUMBER — an integer with a min and max
+        ConfigRegistry.register(MOD_ID,
+                new ConfigOption.Builder("my_number", "My Number")
+                        .description("Pick a number between 0 and 100.")
+                        .badges("Number", "orange")
+                        .numberInput(10, 0, 100)
+                        .build()
+        );
+
+        // SLIDER — a float value you drag between a min and max
+        ConfigRegistry.register(MOD_ID,
+                new ConfigOption.Builder("my_slider", "My Slider")
+                        .description("Drag to set a value between 0.0 and 1.0.")
+                        .badges("Slider", "teal")
+                        .slider(0.5f, 0.0f, 1.0f, 0.05f)
+                        .build()
+        );
+
+        // TOGGLE — experimental, requires new world
+        ConfigRegistry.register(MOD_ID,
+                new ConfigOption.Builder("experimental_feature", "Experimental Feature")
                         .description("Generates massive crystalline caverns. Might be laggy!")
-                        .badges("Client? Server? Both? idk", "green")
+                        .badges("Server", "green")
+                        .defaultEnabled(false)
                         .experimental(true)
                         .requiresNewWorld(true)
                         .build()
         );
 
+        // TOGGLE — conflict example (only one HUD can be active at a time)
         ConfigRegistry.register(MOD_ID,
-                new ConfigOption.Builder("test1", "test1")
-                        .description("this is incompadable with test2")
-                        .badges("TestFlag", "blue", "test", "gray")
-                        .conflicts(Set.of("test2"))
+                new ConfigOption.Builder("classic_hud", "Classic HUD")
+                        .description("Uses the legacy 1.8 style interface.")
+                        .badges("Client", "blue", "Cosmetic", "gray")
+                        .conflicts(Set.of("modern_hud"))
                         .build()
         );
 
         ConfigRegistry.register(MOD_ID,
-                new ConfigOption.Builder("test2", "this is incompadable with test1")
+                new ConfigOption.Builder("modern_hud", "Modern HUD")
                         .description("A sleek, minimalist interface.")
-                        .badges("uhh", "blue", "sure", "gray")
-                        .conflicts(Set.of("test1"))
+                        .badges("Client", "blue", "Cosmetic", "gray")
+                        .conflicts(Set.of("classic_hud"))
                         .build()
         );
 
+        // TOGGLE — incompatible/unsupported option
         ConfigRegistry.register(MOD_ID,
-                new ConfigOption.Builder("unsupported_tweak", "test_config")
-                        .description("This feature is currently disabled")
+                new ConfigOption.Builder("unsupported_tweak", "Legacy Physics")
+                        .description("Currently disabled due to bugs.")
                         .compatible(false)
                         .build()
         );
 
         ConfigState.load(MOD_ID);
 
-        //Example on how to use it or smh
-        /*
-        int[] ticker = {0};
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.world == null) return;
-            if (++ticker[0] % 20 != 0) return;
-            for (ConfigOption opt : ConfigRegistry.getOptions(MOD_ID)) {
-                boolean enabled = ConfigState.isEnabled(MOD_ID, opt.id());
-                LOGGER.info("[ConfigAPI] {} is: {}", opt.name(), enabled ? "turned on" : "turned off");
-            }
-        });
-        */
+        // ── Reading values at runtime ──────────────────────────────────────
+        // Use these anywhere in your mod after ConfigState.load() has been called:
+        //
+        // boolean toggle = ConfigState.getBoolean(MOD_ID, "my_toggle");
+        // String  text   = ConfigState.getString (MOD_ID, "my_text");
+        // int     number = ConfigState.getInt    (MOD_ID, "my_number");
+        // float   slider = ConfigState.getFloat  (MOD_ID, "my_slider");
     }
 }
