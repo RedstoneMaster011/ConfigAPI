@@ -2,7 +2,7 @@
 
 A simple, flexible config screen API for Fabric mods. Drop in the JAR, register your options, and get a fully-featured in-game config screen with search, filters, conflict resolution, and persistent saves — for free.
 
-**Supports:** Minecraft 1.21 – 1.21.11 · Fabric
+**Supports:** Minecraft 1.21.6 – 1.21.11 · Fabric
 
 ---
 

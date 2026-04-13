@@ -5,6 +5,7 @@ import dev.redstone.configapi.api.ConfigRegistry;
 import dev.redstone.configapi.config.ConfigState;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -157,9 +158,9 @@ public final class ConfigScreen extends Screen {
 
         if (filtersOpen) {
             int fy = 74, fh = 38;
-            ctx.fill(20, fy, width - 20, fy + fh, FILTER_BG);
-            ctx.fill(20, fy, width - 20, fy + 1, PANEL_BORDER);
-            ctx.fill(20, fy + fh - 1, width - 20, fy + fh, PANEL_BORDER);
+            ctx.fillGradient(20, fy, width - 20, fy + fh, FILTER_BG, FILTER_BG);
+            ctx.fillGradient(20, fy, width - 20, fy + 1, PANEL_BORDER, PANEL_BORDER);
+            ctx.fillGradient(20, fy + fh - 1, width - 20, fy + fh, PANEL_BORDER, PANEL_BORDER);
             ctx.drawTextWithShadow(textRenderer, Text.literal("Filters"), 28, fy - 10, TEXT_MUTED);
         }
 
@@ -168,9 +169,9 @@ public final class ConfigScreen extends Screen {
         int listH      = listBottom - listTop;
         int listX = 20, listW = width - 40;
 
-        ctx.fill(listX, listTop, listX + listW, listBottom, PANEL_BG);
-        ctx.fill(listX, listTop, listX + listW, listTop + 1, PANEL_BORDER);
-        ctx.fill(listX, listBottom - 1, listX + listW, listBottom, PANEL_BORDER);
+        ctx.fillGradient(listX, listTop, listX + listW, listBottom, PANEL_BG, PANEL_BG);
+        ctx.fillGradient(listX, listTop, listX + listW, listTop + 1, PANEL_BORDER, PANEL_BORDER);
+        ctx.fillGradient(listX, listBottom - 1, listX + listW, listBottom, PANEL_BORDER, PANEL_BORDER);
 
         int visibleRows = Math.max(1, (listH - 16) / ROW_HEIGHT);
         int start = scrollOffset;
@@ -194,10 +195,10 @@ public final class ConfigScreen extends Screen {
             int trackH = listH - 8;
             int trackX = listX + listW - 6;
             int trackY = listTop + 4;
-            ctx.fill(trackX, trackY, trackX + 4, trackY + trackH, 0x33FFFFFF);
+            ctx.fillGradient(trackX, trackY, trackX + 4, trackY + trackH, 0x33FFFFFF, 0x33FFFFFF);
             int thumbH = Math.max(16, trackH * visibleRows / filtered.size());
             int thumbY = trackY + (trackH - thumbH) * scrollOffset / Math.max(1, filtered.size() - visibleRows);
-            ctx.fill(trackX, thumbY, trackX + 4, thumbY + thumbH, 0xAAB0C8E0);
+            ctx.fillGradient(trackX, thumbY, trackX + 4, thumbY + thumbH, 0xAAB0C8E0, 0xAAB0C8E0);
         }
 
         super.render(ctx, mouseX, mouseY, delta);
@@ -208,9 +209,9 @@ public final class ConfigScreen extends Screen {
 
     private void renderRow(DrawContext ctx, ConfigOption opt, int x, int y, int w, int h,
                            boolean hovered, int mouseX, int mouseY) {
-        ctx.fill(x, y, x + w, y + h, hovered ? ROW_BG_HOVERED : ROW_BG);
-        ctx.fill(x, y, x + w, y + 1, PANEL_BORDER);
-        ctx.fill(x, y + h - 1, x + w, y + h, PANEL_BORDER);
+        ctx.fillGradient(x, y, x + w, y + h, hovered ? ROW_BG_HOVERED : ROW_BG, hovered ? ROW_BG_HOVERED : ROW_BG);
+        ctx.fillGradient(x, y, x + w, y + 1, PANEL_BORDER, PANEL_BORDER);
+        ctx.fillGradient(x, y + h - 1, x + w, y + h, PANEL_BORDER, PANEL_BORDER);
 
         int controlW  = controlWidth(opt);
         int controlX  = x + w - controlW - 10;
@@ -237,10 +238,10 @@ public final class ConfigScreen extends Screen {
                 if (tw != null) {
                     int boxX = controlX - 15;
                     int boxW = controlWidth(opt);
-                    ctx.fill(boxX - 1, controlY - 1, boxX + boxW + 1,
-                            controlY + TEXT_INPUT_H + 1, INPUT_BORDER);
-                    ctx.fill(boxX, controlY, boxX + boxW,
-                            controlY + TEXT_INPUT_H, INPUT_BG);
+                    ctx.fillGradient(boxX - 1, controlY - 1, boxX + boxW + 1,
+                            controlY + TEXT_INPUT_H + 1, INPUT_BORDER, INPUT_BORDER);
+                    ctx.fillGradient(boxX, controlY, boxX + boxW,
+                            controlY + TEXT_INPUT_H, INPUT_BG, INPUT_BG);
                 }
             }
         }
@@ -248,9 +249,9 @@ public final class ConfigScreen extends Screen {
 
     private void renderToggle(DrawContext ctx, ConfigOption opt, int x, int y) {
         boolean on = "true".equals(pendingState.get(opt.id()));
-        ctx.fill(x, y, x + TOGGLE_W, y + TOGGLE_H, on ? SWITCH_ON : SWITCH_OFF);
+        ctx.fillGradient(x, y, x + TOGGLE_W, y + TOGGLE_H, on ? SWITCH_ON : SWITCH_OFF, on ? SWITCH_ON : SWITCH_OFF);
         int knobX = x + (on ? TOGGLE_W - 16 : 2);
-        ctx.fill(knobX, y + 2, knobX + 14, y + TOGGLE_H - 2, SWITCH_KNOB);
+        ctx.fillGradient(knobX, y + 2, knobX + 14, y + TOGGLE_H - 2, SWITCH_KNOB, SWITCH_KNOB);
         ctx.drawCenteredTextWithShadow(textRenderer, Text.literal(on ? "ON" : "OFF"),
                 x + TOGGLE_W / 2, y + 5, on ? 0xFFDDFFDD : 0xFFCCCCCC);
     }
@@ -260,11 +261,11 @@ public final class ConfigScreen extends Screen {
         float ratio   = (value - opt.minSlider()) / Math.max(0.0001f, opt.maxSlider() - opt.minSlider());
         int trackY    = y + (TOGGLE_H - SLIDER_H) / 2;
 
-        ctx.fill(x, trackY, x + SLIDER_W, trackY + SLIDER_H, SLIDER_TRACK);
+        ctx.fillGradient(x, trackY, x + SLIDER_W, trackY + SLIDER_H, SLIDER_TRACK, SLIDER_TRACK);
         int fillW = (int) (ratio * SLIDER_W);
-        ctx.fill(x, trackY, x + fillW, trackY + SLIDER_H, SLIDER_FILL);
+        ctx.fillGradient(x, trackY, x + fillW, trackY + SLIDER_H, SLIDER_FILL, SLIDER_FILL);
         int knobX = x + fillW - 3;
-        ctx.fill(knobX, trackY - 2, knobX + 6, trackY + SLIDER_H + 2, SLIDER_KNOB);
+        ctx.fillGradient(knobX, trackY - 2, knobX + 6, trackY + SLIDER_H + 2, SLIDER_KNOB, SLIDER_KNOB);
         String label = formatSliderValue(value);
         ctx.drawCenteredTextWithShadow(textRenderer, Text.literal(label),
                 x + SLIDER_W / 2, trackY + SLIDER_H + 3, TEXT_MUTED);
@@ -275,14 +276,14 @@ public final class ConfigScreen extends Screen {
         int bx = (width - bw) / 2, by = (height - bh) / 2;
         drawModal(ctx, bx, by, bw, bh);
         ctx.drawTextWithShadow(textRenderer, Text.literal("Reset to Defaults?"), bx + 12, by + 10, TEXT_PRIMARY);
-        ctx.drawTextWrapped(textRenderer,
+        ctx.drawWrappedTextWithShadow(textRenderer,
                 Text.literal("This will restore all options to their default state."),
                 bx + 12, by + 26, bw - 24, TEXT_MUTED);
         boolean hoverConfirm = insideBounds(mx, my, bx + 12, by + 88, 112, 20);
-        ctx.fill(bx + 12, by + 88, bx + 124, by + 108, hoverConfirm ? 0xFF3A5E2A : 0xFF2A4E1A);
+        ctx.fillGradient(bx + 12, by + 88, bx + 124, by + 108, hoverConfirm ? 0xFF3A5E2A : 0xFF2A4E1A, hoverConfirm ? 0xFF3A5E2A : 0xFF2A4E1A);
         ctx.drawCenteredTextWithShadow(textRenderer, Text.literal("Confirm"), bx + 68, by + 93, 0xFFCCFFCC);
         boolean hoverCancel = insideBounds(mx, my, bx + 132, by + 88, 80, 20);
-        ctx.fill(bx + 132, by + 88, bx + 212, by + 108, hoverCancel ? 0xFF4A3030 : 0xFF3A2020);
+        ctx.fillGradient(bx + 132, by + 88, bx + 212, by + 108, hoverCancel ? 0xFF4A3030 : 0xFF3A2020, hoverCancel ? 0xFF4A3030 : 0xFF3A2020);
         ctx.drawCenteredTextWithShadow(textRenderer, Text.literal("Cancel"), bx + 172, by + 93, 0xFFFFCCCC);
     }
 
@@ -291,31 +292,31 @@ public final class ConfigScreen extends Screen {
         int bx = (width - bw) / 2, by = (height - bh) / 2;
         drawModal(ctx, bx, by, bw, bh);
         ctx.drawTextWithShadow(textRenderer, Text.literal("Conflict"), bx + 12, by + 10, TEXT_WARNING);
-        ctx.drawTextWrapped(textRenderer,
+        ctx.drawWrappedTextWithShadow(textRenderer,
                 Text.literal(conflictPrompt.message()), bx + 12, by + 26, bw - 24, TEXT_MUTED);
         boolean hoverReplace = insideBounds(mx, my, bx + 12, by + 82, 104, 20);
-        ctx.fill(bx + 12, by + 82, bx + 116, by + 102, hoverReplace ? 0xFF3A5E2A : 0xFF2A4E1A);
+        ctx.fillGradient(bx + 12, by + 82, bx + 116, by + 102, hoverReplace ? 0xFF3A5E2A : 0xFF2A4E1A, hoverReplace ? 0xFF3A5E2A : 0xFF2A4E1A);
         ctx.drawCenteredTextWithShadow(textRenderer, Text.literal("Replace"), bx + 64, by + 87, 0xFFCCFFCC);
         boolean hoverCancel = insideBounds(mx, my, bx + 124, by + 82, 80, 20);
-        ctx.fill(bx + 124, by + 82, bx + 204, by + 102, hoverCancel ? 0xFF4A3030 : 0xFF3A2020);
+        ctx.fillGradient(bx + 124, by + 82, bx + 204, by + 102, hoverCancel ? 0xFF4A3030 : 0xFF3A2020, hoverCancel ? 0xFF4A3030 : 0xFF3A2020);
         ctx.drawCenteredTextWithShadow(textRenderer, Text.literal("Cancel"), bx + 164, by + 87, 0xFFFFCCCC);
     }
 
     private void drawModal(DrawContext ctx, int x, int y, int w, int h) {
-        ctx.fill(0, 0, width, height, 0x88000000);
-        ctx.fill(x, y, x + w, y + h, 0xFF1A2535);
-        ctx.fill(x, y, x + w, y + 1, PANEL_BORDER);
-        ctx.fill(x, y + h - 1, x + w, y + h, PANEL_BORDER);
-        ctx.fill(x, y, x + 1, y + h, PANEL_BORDER);
-        ctx.fill(x + w - 1, y, x + w, y + h, PANEL_BORDER);
+        ctx.fillGradient(0, 0, width, height, 0x88000000, 0x88000000);
+        ctx.fillGradient(x, y, x + w, y + h, 0xFF1A2535, 0xFF1A2535);
+        ctx.fillGradient(x, y, x + w, y + 1, PANEL_BORDER, PANEL_BORDER);
+        ctx.fillGradient(x, y + h - 1, x + w, y + h, PANEL_BORDER, PANEL_BORDER);
+        ctx.fillGradient(x, y, x + 1, y + h, PANEL_BORDER, PANEL_BORDER);
+        ctx.fillGradient(x + w - 1, y, x + w, y + h, PANEL_BORDER, PANEL_BORDER);
     }
 
     private int drawBadge(DrawContext ctx, int x, int y, String label, int color, int maxX) {
         int w = textRenderer.getWidth(Text.literal(label)) + 8;
         if (x + w > maxX) return x;
-        ctx.fill(x, y, x + w, y + 12, color & 0x80FFFFFF | 0x40000000);
-        ctx.fill(x, y, x + w, y + 1, color);
-        ctx.fill(x, y + 11, x + w, y + 12, color);
+        ctx.fillGradient(x, y, x + w, y + 12, color & 0x80FFFFFF | 0x40000000, color & 0x80FFFFFF | 0x40000000);
+        ctx.fillGradient(x, y, x + w, y + 1, color, color);
+        ctx.fillGradient(x, y + 11, x + w, y + 12, color, color);
         ctx.drawTextWithShadow(textRenderer, Text.literal(label), x + 4, y + 2, 0xFFFFFFFF);
         return x + w + 4;
     }
@@ -372,7 +373,9 @@ public final class ConfigScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mx, double my, int button) {
+    public boolean mouseClicked(Click click, boolean primary) {
+        double mx = click.x();
+        double my = click.y();
         if (resetPrompt != null) {
             int bw = Math.min(340, width - 40), bh = 126;
             int bx = (width - bw) / 2, by = (height - bh) / 2;
@@ -387,28 +390,28 @@ public final class ConfigScreen extends Screen {
             if (insideBounds(mx, my, bx + 124, by + 82, 80, 20))  { conflictPrompt = null; return true; }
             return true;
         }
-        if (tryStartSliderDrag(mx, my)) return true;
-        if (handleToggleClick(mx, my)) return true;
-        return super.mouseClicked(mx, my, button);
+        if (primary && tryStartSliderDrag(mx, my)) return true;
+        if (primary && handleToggleClick(mx, my)) return true;
+        return super.mouseClicked(click, primary);
     }
 
     @Override
-    public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
+    public boolean mouseDragged(Click click, double dx, double dy) {
         if (draggingSlider != null) {
-            updateSliderFromMouse(draggingSlider, mx);
+            updateSliderFromMouse(draggingSlider, click.x());
             return true;
         }
-        return super.mouseDragged(mx, my, button, dx, dy);
+        return super.mouseDragged(click, dx, dy);
     }
 
     @Override
-    public boolean mouseReleased(double mx, double my, int button) {
+    public boolean mouseReleased(Click click) {
         if (draggingSlider != null) {
             draggingSlider = null;
             updateResetButtonState();
             return true;
         }
-        return super.mouseReleased(mx, my, button);
+        return super.mouseReleased(click);
     }
 
     @Override

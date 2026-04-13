@@ -18,7 +18,6 @@ public class Configapi implements ModInitializer {
     public void onInitialize() {
         LOGGER.info("[ConfigAPI] Initialized.");
 
-        // TOGGLE — a simple on/off boolean option
         ConfigRegistry.register(MOD_ID,
                 new ConfigOption.Builder("my_toggle", "My Toggle")
                         .description("A simple on/off option.")
@@ -27,7 +26,6 @@ public class Configapi implements ModInitializer {
                         .build()
         );
 
-        // TEXT — a freeform string input
         ConfigRegistry.register(MOD_ID,
                 new ConfigOption.Builder("my_text", "My Text")
                         .description("Type anything you want here.")
@@ -36,7 +34,6 @@ public class Configapi implements ModInitializer {
                         .build()
         );
 
-        // NUMBER — an integer with a min and max
         ConfigRegistry.register(MOD_ID,
                 new ConfigOption.Builder("my_number", "My Number")
                         .description("Pick a number between 0 and 100.")
@@ -45,7 +42,6 @@ public class Configapi implements ModInitializer {
                         .build()
         );
 
-        // SLIDER — a float value you drag between a min and max
         ConfigRegistry.register(MOD_ID,
                 new ConfigOption.Builder("my_slider", "My Slider")
                         .description("Drag to set a value between 0.0 and 1.0.")
@@ -54,7 +50,6 @@ public class Configapi implements ModInitializer {
                         .build()
         );
 
-        // TOGGLE — experimental, requires new world
         ConfigRegistry.register(MOD_ID,
                 new ConfigOption.Builder("experimental_feature", "Experimental Feature")
                         .description("Generates massive crystalline caverns. Might be laggy!")
@@ -65,7 +60,6 @@ public class Configapi implements ModInitializer {
                         .build()
         );
 
-        // TOGGLE — conflict example (only one HUD can be active at a time)
         ConfigRegistry.register(MOD_ID,
                 new ConfigOption.Builder("classic_hud", "Classic HUD")
                         .description("Uses the legacy 1.8 style interface.")
