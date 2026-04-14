@@ -36,15 +36,13 @@ public final class ConfigScreen extends Screen {
     private static final int INPUT_BG       = 0xFF0F1E2E;
     private static final int INPUT_BORDER   = 0xFF2A4A6A;
     private static final int FILTER_BG      = 0xAA111D2A;
-    private static final int CHECKERBOARD1  = 0xFF888888;
-    private static final int CHECKERBOARD2  = 0xFF555555;
 
     private static final int COLOR_SWATCH = 14;
     private static final int COLOR_W      = 100;
     private static final int ITEM_ICON_W  = 16;
     private static final int ITEM_W       = 140;
 
-    private static final int ROW_HEIGHT  = 58;
+    private static final int ROW_HEIGHT  = 48;
     private static final int TOGGLE_W    = 46;
     private static final int TOGGLE_H    = 18;
     private static final int SLIDER_W    = 120;
@@ -225,7 +223,7 @@ public final class ConfigScreen extends Screen {
         int textW     = Math.max(50, controlX - x - 18);
 
         ctx.drawTextWithShadow(textRenderer, Text.literal(fitText(opt.name(), textW)), x + 10, y + 6, TEXT_PRIMARY);
-        ctx.drawTextWithShadow(textRenderer, Text.literal(fitText(opt.description(), textW)), x + 10, y + 18, TEXT_MUTED);
+        ctx.drawTextWithShadow(textRenderer, Text.literal(fitText(opt.description(), textW)), x + 10, y + 16, TEXT_MUTED);
 
         int bx = x + 10;
         int by = y + h - 18;
@@ -258,11 +256,25 @@ public final class ConfigScreen extends Screen {
 
     private void renderToggle(DrawContext ctx, ConfigOption opt, int x, int y) {
         boolean on = "true".equals(pendingState.get(opt.id()));
-        ctx.fillGradient(x, y, x + TOGGLE_W, y + TOGGLE_H, on ? SWITCH_ON : SWITCH_OFF, on ? SWITCH_ON : SWITCH_OFF);
-        int knobX = x + (on ? TOGGLE_W - 16 : 2);
-        ctx.fillGradient(knobX, y + 2, knobX + 14, y + TOGGLE_H - 2, SWITCH_KNOB, SWITCH_KNOB);
-        ctx.drawCenteredTextWithShadow(textRenderer, Text.literal(on ? "ON" : "OFF"),
-                x + TOGGLE_W / 2, y + 5, on ? 0xFFDDFFDD : 0xFFCCCCCC);
+        int background = on ? SWITCH_ON : SWITCH_OFF;
+        int border     = on ? 0xFF2A7A48 : 0xFF2A3A50;
+        int knobW      = 14;
+        int knobTravel = TOGGLE_W - knobW - 4;
+        int knobX      = x + 2 + (on ? knobTravel : 0);
+        String label   = on ? "ON" : "OFF";
+        int labelX     = on ? x + 6 : x + TOGGLE_W - textRenderer.getWidth(label) - 6;
+        // Track fill
+        ctx.fillGradient(x, y, x + TOGGLE_W, y + TOGGLE_H, background, background);
+        // Border (top, bottom, left, right)
+        ctx.fillGradient(x, y,               x + TOGGLE_W, y + 1,            border, border);
+        ctx.fillGradient(x, y + TOGGLE_H - 1, x + TOGGLE_W, y + TOGGLE_H,    border, border);
+        ctx.fillGradient(x, y,               x + 1,         y + TOGGLE_H,    border, border);
+        ctx.fillGradient(x + TOGGLE_W - 1, y, x + TOGGLE_W, y + TOGGLE_H,    border, border);
+        // Knob
+        ctx.fillGradient(knobX, y + 2, knobX + knobW, y + TOGGLE_H - 2, SWITCH_KNOB, SWITCH_KNOB);
+        // Label
+        ctx.drawTextWithShadow(textRenderer, Text.literal(label), labelX, y + 5,
+                on ? 0xFFDDFFDD : 0xFFCCCCCC);
     }
 
     private void renderSlider(DrawContext ctx, ConfigOption opt, int x, int y, int mouseX, int mouseY) {
@@ -287,7 +299,7 @@ public final class ConfigScreen extends Screen {
 
         String label = formatSliderValue(value);
         ctx.drawCenteredTextWithShadow(textRenderer, Text.literal(label),
-                x + SLIDER_W / 2, trackY + trackH + 4, TEXT_MUTED);
+                x + SLIDER_W / 2, trackY + trackH + 6, TEXT_MUTED);
     }
 
     private void renderColorControl(DrawContext ctx, ConfigOption opt, int x, int y) {

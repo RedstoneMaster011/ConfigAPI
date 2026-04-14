@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "configapi",
-  "version": "1.1.0",
+  "version": "1.1.5",
   "name": "ConfigAPI",
   "description": "A feature-toggle config API with a searchable, filterable ModMenu screen.",
   "authors": ["redstone"],
