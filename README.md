@@ -93,6 +93,24 @@ public class MyMod implements ModInitializer {
                         .slider(0.5f, 0.0f, 1.0f, 0.05f)
                         .build()
         );
+        
+        // Color input (Hex string)
+        ConfigRegistry.register(MOD_ID,
+                new ConfigOption.Builder("my_color", "My Color")
+                        .description("Colors")
+                        .colorInput("#FF5500")
+                        .badges("Change the color!", "green")
+                        .build()
+        );
+
+        // Item input (Registry ID)
+        ConfigRegistry.register(MOD_ID,
+                new ConfigOption.Builder("my_item", "My Item")
+                        .description("Items")
+                        .itemInput("minecraft:diamond")
+                        .badges("Select a item!", "green")
+                        .build()
+        );
 
         // Load saved state from disk (or seed defaults if first run)
         ConfigState.load(MOD_ID);
@@ -107,6 +125,8 @@ boolean toggle = ConfigState.getBoolean("my_mod", "my_feature");
 String  text   = ConfigState.getString ("my_mod", "my_text");
 int     number = ConfigState.getInt    ("my_mod", "my_number");
 float   slider = ConfigState.getFloat  ("my_mod", "my_slider");
+int     argb   = ConfigState.getColor  (MOD_ID, "my_color");
+String  itemId = ConfigState.getItem   (MOD_ID, "my_item");
 ```
 
 ### 3. Write values programmatically (optional)
@@ -196,6 +216,36 @@ float value = ConfigState.getFloat("my_mod", "my_slider");
 
 ---
 
+Color Input
+A dedicated field for hex colors. It automatically handles parsing hex strings into ARGB integers for use in rendering.
+
+```java
+new ConfigOption.Builder("my_color", "My Color")
+.colorInput("#FF5500") // (defaultHex)
+.build()
+```
+
+Read at runtime:
+
+```java
+int argb = ConfigState.getColor("my_mod", "my_color");
+```
+
+Item Input
+A field for selecting Minecraft items or blocks via their registry identifier.
+
+```java
+new ConfigOption.Builder("my_item", "My Item")
+.itemInput("minecraft:diamond") // (defaultIdentifier)
+.build()
+```
+
+Read at runtime:
+
+```java
+String id = ConfigState.getItem("my_mod", "my_item");
+```
+
 ## ConfigOption Builder Reference
 
 ```java
@@ -215,6 +265,8 @@ new ConfigOption.Builder("option_id", "Display Name")
     .textInput("default", 128)        // TEXT:   default value, max character length
     .numberInput(0, 0, 100)           // NUMBER: default, min, max
     .slider(0.5f, 0f, 1f, 0.05f)     // SLIDER: default, min, max, step
+    .colorInput("#FFFFFF")            // COLOR: hex
+    .itemInput("minecraft:air")       // ITEM  item id
 
     .build()
 ```
@@ -397,18 +449,20 @@ All values are stored as strings regardless of type. On next load, `ConfigState.
 
 ### `ConfigState` method reference
 
-| Method | Returns | Use for |
-|---|---|---|
-| `getBoolean(ns, id)` | `boolean` | Toggle options |
-| `getString(ns, id)` | `String` | Text input options |
-| `getInt(ns, id)` | `int` | Number input options |
-| `getFloat(ns, id)` | `float` | Slider options |
-| `getRaw(ns, id)` | `String` | Any option, unparsed |
-| `setValue(ns, id, value)` | `void` | Write any value as string |
-| `load(ns)` | `void` | Call once in `onInitialize()` |
-| `save(ns)` | `void` | Persist to disk manually |
-| `resetToDefaults(ns)` | `void` | Reset all options and save |
-| `enabledIds(ns)` | `Set<String>` | All currently-enabled toggle ids |
+| Method | Returns                       | Use for                          |
+|---|-------------------------------|----------------------------------|
+| `getBoolean(ns, id)` | `boolean`                     | Toggle options                   |
+| `getString(ns, id)` | `String`                      | Text input options               |
+| `getInt(ns, id)` | `int`                         | Number input options             |
+| `getFloat(ns, id)` | `float`                       | Slider options                   |
+| `getRaw(ns, id)` | `String`                      | Any option, unparsed             |
+| `setValue(ns, id, value)` | `void`                        | Write any value as string        |
+| `load(ns)` | `void`                        | Call once in `onInitialize()`    |
+| `save(ns)` | `void`                        | Persist to disk manually         |
+| `resetToDefaults(ns)` | `void`                        | Reset all options and save       |
+| `enabledIds(ns)` | `Set<String>`                 | All currently-enabled toggle ids |
+| `getColor(ns, id)` | 	`int	` | Color options (ARGB)             | 
+| `getItem(ns, id)` | `String`	| Item registry IDs |
 
 ### `ConfigRegistry` method reference
 
