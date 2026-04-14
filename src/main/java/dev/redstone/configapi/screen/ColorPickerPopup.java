@@ -183,16 +183,21 @@ public final class ColorPickerPopup extends Screen {
         ctx.fillGradient(swatchX, fieldsY, swatchX + SWATCH, fieldsY + SWATCH, argb, argb);
         drawBorder(ctx, swatchX - 1, fieldsY - 1, SWATCH + 2, SWATCH + 2);
 
-        ctx.drawTextWithShadow(textRenderer, Text.literal("#"), swatchX + SWATCH + 8, fieldsY + 3, TEXT_MUTED);
-        drawFieldBox(ctx, hexField.getX() - 1, hexField.getY() - 1, FIELD_W_HEX + 2, FIELD_H + 2);
+        ctx.drawTextWithShadow(textRenderer, Text.literal("#"), swatchX + SWATCH + 8, fieldsY, TEXT_MUTED);
+        drawFieldBox(ctx, hexField.getX() - 1, hexField.getY() - 4, FIELD_W_HEX + 2, FIELD_H + 2);
 
         int rgbY = fieldsY + FIELD_H + 8;
-        ctx.drawTextWithShadow(textRenderer, Text.literal("R"), px + SV_X_OFF,      rgbY + 2, 0xFFFF8888);
-        ctx.drawTextWithShadow(textRenderer, Text.literal("G"), rField.getX() + FIELD_W_RGB + 8, rgbY + 2, 0xFF88FF88);
-        ctx.drawTextWithShadow(textRenderer, Text.literal("B"), gField.getX() + FIELD_W_RGB + 8, rgbY + 2, 0xFF88AAFF);
-        drawFieldBox(ctx, rField.getX() - 1, rField.getY() - 1, FIELD_W_RGB + 2, FIELD_H + 2);
-        drawFieldBox(ctx, gField.getX() - 1, gField.getY() - 1, FIELD_W_RGB + 2, FIELD_H + 2);
-        drawFieldBox(ctx, bField.getX() - 1, bField.getY() - 1, FIELD_W_RGB + 2, FIELD_H + 2);
+        ctx.drawTextWithShadow(textRenderer, Text.literal("R"), px + SV_X_OFF, rgbY + 4, 0xFFFF8888);
+        ctx.drawTextWithShadow(textRenderer, Text.literal("G"), rField.getX() + FIELD_W_RGB + 8, rgbY + 4, 0xFF88FF88);
+        ctx.drawTextWithShadow(textRenderer, Text.literal("B"), gField.getX() + FIELD_W_RGB + 8, rgbY + 4, 0xFF88AAFF);
+
+        rField.setPosition(rField.getX(), rgbY + 3);
+        gField.setPosition(gField.getX(), rgbY + 3);
+        bField.setPosition(bField.getX(), rgbY + 3);
+
+        drawFieldBox(ctx, rField.getX() - 1, rField.getY() - 4, FIELD_W_RGB + 2, FIELD_H + 2);
+        drawFieldBox(ctx, gField.getX() - 1, gField.getY() - 4, FIELD_W_RGB + 2, FIELD_H + 2);
+        drawFieldBox(ctx, bField.getX() - 1, bField.getY() - 4, FIELD_W_RGB + 2, FIELD_H + 2);
 
         super.render(ctx, mouseX, mouseY, delta);
     }

@@ -417,7 +417,7 @@ public final class ConfigScreen extends Screen {
                     int fieldX = controlX + COLOR_SWATCH + 3;
                     int fieldW = COLOR_W - COLOR_SWATCH - 3;
                     TextFieldWidget tw = new TextFieldWidget(textRenderer,
-                            fieldX, controlY + 2, fieldW, TEXT_INPUT_H - 2, Text.literal(opt.name()));
+                            fieldX, controlY + 3, fieldW, TEXT_INPUT_H - 2, Text.literal(opt.name()));
                     tw.setMaxLength(7);
                     tw.setDrawsBackground(false);
                     tw.setText(pendingState.getOrDefault(opt.id(), opt.defaultColor()));

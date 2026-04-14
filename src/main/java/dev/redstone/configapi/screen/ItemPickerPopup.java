@@ -119,7 +119,7 @@ public final class ItemPickerPopup extends Screen {
 
         ctx.drawTextWithShadow(textRenderer, Text.literal("Select Item"), px + 10, py + 10, TEXT_PRIMARY);
 
-        drawFieldBox(ctx, searchBox.getX() - 1, searchBox.getY() - 1, GRID_W + 2, 16);
+        drawFieldBox(ctx, searchBox.getX() - 2, searchBox.getY() - 4, GRID_W + 2, 16);
 
         int gridX = px + GRID_X_OFF;
         int gridY = py + GRID_Y_OFF;
