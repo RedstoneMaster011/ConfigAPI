@@ -30,8 +30,7 @@ repositories {
 }
 
 dependencies {
-    modImplementation fileTree(dir: 'libs', include: ['*.jar'])
-    include fileTree(dir: 'libs', include: ['*.jar']) // bundles it into your JAR
+    modImplementation files('libs/configapi-x.x.x.jar') //change name to correct name of jar
 }
 ```
 
