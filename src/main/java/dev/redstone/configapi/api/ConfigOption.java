@@ -6,7 +6,7 @@ import java.util.Set;
 
 public final class ConfigOption {
 
-    public enum InputType { TOGGLE, TEXT, NUMBER, SLIDER }
+    public enum InputType { TOGGLE, TEXT, NUMBER, SLIDER, COLOR, ITEM }
 
     private final String id;
     private final String name;
@@ -31,6 +31,8 @@ public final class ConfigOption {
     private final float minSlider;
     private final float maxSlider;
     private final float stepSlider;
+    private final String defaultColor;
+    private final String defaultItem;
 
     private ConfigOption(Builder b) {
         this.id               = b.id;
@@ -54,6 +56,8 @@ public final class ConfigOption {
         this.minSlider        = b.minSlider;
         this.maxSlider        = b.maxSlider;
         this.stepSlider       = b.stepSlider;
+        this.defaultColor     = b.defaultColor;
+        this.defaultItem      = b.defaultItem;
     }
 
     public String id()               { return id; }
@@ -77,6 +81,8 @@ public final class ConfigOption {
     public float minSlider()         { return minSlider; }
     public float maxSlider()         { return maxSlider; }
     public float stepSlider()        { return stepSlider; }
+    public String defaultColor()     { return defaultColor; }
+    public String defaultItem()      { return defaultItem; }
 
     public String defaultValueString() {
         return switch (inputType) {
@@ -84,6 +90,8 @@ public final class ConfigOption {
             case TEXT   -> defaultText;
             case NUMBER -> String.valueOf(defaultNumber);
             case SLIDER -> String.valueOf(defaultSlider);
+            case COLOR  -> defaultColor;
+            case ITEM   -> defaultItem;
         };
     }
 
@@ -148,6 +156,25 @@ public final class ConfigOption {
         }
     }
 
+    public static int hexToArgb(String hex) {
+        if (hex == null) return 0xFF8899AA;
+        String s = hex.trim();
+        if (s.startsWith("#")) s = s.substring(1);
+        if (s.length() == 3) {
+            s = "" + s.charAt(0) + s.charAt(0) + s.charAt(1) + s.charAt(1) + s.charAt(2) + s.charAt(2);
+        }
+        try {
+            int rgb = (int) Long.parseLong(s, 16);
+            return 0xFF000000 | (rgb & 0x00FFFFFF);
+        } catch (NumberFormatException e) {
+            return 0xFF8899AA;
+        }
+    }
+
+    public static String argbToHex(int argb) {
+        return String.format("#%06X", argb & 0x00FFFFFF);
+    }
+
     public static final class Builder {
         private final String id;
         private final String name;
@@ -171,6 +198,8 @@ public final class ConfigOption {
         private float minSlider        = 0f;
         private float maxSlider        = 1f;
         private float stepSlider       = 0.01f;
+        private String defaultColor    = "#FFFFFF";
+        private String defaultItem     = "";
 
         public Builder(String id, String name) {
             if (id == null || id.isBlank())     throw new IllegalArgumentException("id must not be blank");
@@ -214,6 +243,18 @@ public final class ConfigOption {
             this.minSlider     = min;
             this.maxSlider     = max;
             this.stepSlider    = step;
+            return this;
+        }
+
+        public Builder colorInput(String defaultHex) {
+            this.inputType    = InputType.COLOR;
+            this.defaultColor = (defaultHex == null || defaultHex.isBlank()) ? "#FFFFFF" : defaultHex;
+            return this;
+        }
+
+        public Builder itemInput(String defaultItemId) {
+            this.inputType   = InputType.ITEM;
+            this.defaultItem = (defaultItemId == null) ? "" : defaultItemId;
             return this;
         }
 

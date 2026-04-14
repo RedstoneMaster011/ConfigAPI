@@ -75,6 +75,14 @@ public final class ConfigState {
         catch (NumberFormatException e) { return 0f; }
     }
 
+    public static int getColor(String namespace, String optionId) {
+        return ConfigOption.hexToArgb(getRaw(namespace, optionId));
+    }
+
+    public static String getItem(String namespace, String optionId) {
+        return getRaw(namespace, optionId);
+    }
+
     @Deprecated
     public static boolean isEnabled(String namespace, String optionId) {
         return getBoolean(namespace, optionId);

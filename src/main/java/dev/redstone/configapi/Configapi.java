@@ -58,6 +58,22 @@ public class Configapi implements ModInitializer {
                         .build()
         );
 
+        ConfigRegistry.register(MOD_ID,
+                new ConfigOption.Builder("my_color", "My Color")
+                        .description("Colors")
+                        .colorInput("#FF5500")
+                        .badges("Client color", "green")
+                        .build()
+        );
+
+        ConfigRegistry.register(MOD_ID,
+                new ConfigOption.Builder("my_item", "My Item")
+                        .description("Items")
+                        .itemInput("minecraft:diamond")
+                        .badges("Client item", "green")
+                        .build()
+        );
+
         ConfigState.load(MOD_ID);
 
         // ── Reading values at runtime ───────────────────────────────────────
@@ -66,5 +82,7 @@ public class Configapi implements ModInitializer {
         // String  text   = ConfigState.getString (MOD_ID, "my_text");
         // int     number = ConfigState.getInt    (MOD_ID, "my_number");
         // float   slider = ConfigState.getFloat  (MOD_ID, "my_slider");
+        // int argb       = ConfigState.getColor(MOD_ID, "my_color");
+        // String id      = ConfigState.getItem(MOD_ID, "my_item");
     }
 }

@@ -36,6 +36,13 @@ public final class ConfigScreen extends Screen {
     private static final int INPUT_BG       = 0xFF0F1E2E;
     private static final int INPUT_BORDER   = 0xFF2A4A6A;
     private static final int FILTER_BG      = 0xAA111D2A;
+    private static final int CHECKERBOARD1  = 0xFF888888;
+    private static final int CHECKERBOARD2  = 0xFF555555;
+
+    private static final int COLOR_SWATCH = 14;
+    private static final int COLOR_W      = 100;
+    private static final int ITEM_ICON_W  = 16;
+    private static final int ITEM_W       = 140;
 
     private static final int ROW_HEIGHT  = 58;
     private static final int TOGGLE_W    = 46;
@@ -244,6 +251,8 @@ public final class ConfigScreen extends Screen {
                             controlY + TEXT_INPUT_H, INPUT_BG, INPUT_BG);
                 }
             }
+            case COLOR -> renderColorControl(ctx, opt, controlX, controlY);
+            case ITEM  -> renderItemControl(ctx, opt, controlX, controlY);
         }
     }
 
@@ -257,18 +266,54 @@ public final class ConfigScreen extends Screen {
     }
 
     private void renderSlider(DrawContext ctx, ConfigOption opt, int x, int y, int mouseX, int mouseY) {
-        float value   = parseFloat(pendingState.getOrDefault(opt.id(), String.valueOf(opt.defaultSlider())));
-        float ratio   = (value - opt.minSlider()) / Math.max(0.0001f, opt.maxSlider() - opt.minSlider());
-        int trackY    = y + (TOGGLE_H - SLIDER_H) / 2;
+        float value  = parseFloat(pendingState.getOrDefault(opt.id(), String.valueOf(opt.defaultSlider())));
+        float ratio  = (value - opt.minSlider()) / Math.max(0.0001f, opt.maxSlider() - opt.minSlider());
 
-        ctx.fillGradient(x, trackY, x + SLIDER_W, trackY + SLIDER_H, SLIDER_TRACK, SLIDER_TRACK);
+        int trackH = 5;
+        int trackY = y + (TOGGLE_H - trackH) / 2;
+
+        ctx.fillGradient(x - 1, trackY - 1, x + SLIDER_W + 1, trackY + trackH + 1, INPUT_BORDER, INPUT_BORDER);
+        ctx.fillGradient(x, trackY, x + SLIDER_W, trackY + trackH, SLIDER_TRACK, SLIDER_TRACK);
+
         int fillW = (int) (ratio * SLIDER_W);
-        ctx.fillGradient(x, trackY, x + fillW, trackY + SLIDER_H, SLIDER_FILL, SLIDER_FILL);
-        int knobX = x + fillW - 3;
-        ctx.fillGradient(knobX, trackY - 2, knobX + 6, trackY + SLIDER_H + 2, SLIDER_KNOB, SLIDER_KNOB);
+        ctx.fillGradient(x, trackY, x + fillW, trackY + trackH, SLIDER_FILL, SLIDER_FILL);
+
+        int knobW = 6;
+        int knobH = 12;
+        int knobX = x + fillW - knobW / 2;
+        int knobY = y + (TOGGLE_H - knobH) / 2;
+        ctx.fillGradient(knobX - 1, knobY - 1, knobX + knobW + 1, knobY + knobH + 1, INPUT_BORDER, INPUT_BORDER);
+        ctx.fillGradient(knobX, knobY, knobX + knobW, knobY + knobH, SLIDER_KNOB, SLIDER_KNOB);
+
         String label = formatSliderValue(value);
         ctx.drawCenteredTextWithShadow(textRenderer, Text.literal(label),
-                x + SLIDER_W / 2, trackY + SLIDER_H + 3, TEXT_MUTED);
+                x + SLIDER_W / 2, trackY + trackH + 4, TEXT_MUTED);
+    }
+
+    private void renderColorControl(DrawContext ctx, ConfigOption opt, int x, int y) {
+        String hexVal = pendingState.getOrDefault(opt.id(), opt.defaultColor());
+        int argb = ConfigOption.hexToArgb(hexVal);
+
+        ctx.fillGradient(x, y, x + COLOR_SWATCH, y + TEXT_INPUT_H, argb, argb);
+        ctx.fillGradient(x + COLOR_SWATCH, y, x + COLOR_SWATCH + 2, y + TEXT_INPUT_H, INPUT_BORDER, INPUT_BORDER);
+        ctx.fillGradient(x + COLOR_SWATCH + 2, y, x + COLOR_W, y + TEXT_INPUT_H, INPUT_BG, INPUT_BG);
+    }
+
+    private void renderItemControl(DrawContext ctx, ConfigOption opt, int x, int y) {
+        String itemId = pendingState.getOrDefault(opt.id(), opt.defaultItem());
+
+        ctx.fillGradient(x + ITEM_ICON_W + 3, y, x + ITEM_W, y + TEXT_INPUT_H, INPUT_BG, INPUT_BG);
+
+        if (!itemId.isBlank()) {
+            try {
+                net.minecraft.util.Identifier identifier = net.minecraft.util.Identifier.of(itemId);
+                net.minecraft.item.Item item = net.minecraft.registry.Registries.ITEM.get(identifier);
+                if (!item.equals(net.minecraft.item.Items.AIR) || itemId.equals("minecraft:air")) {
+                    int iconY = y + (TEXT_INPUT_H - 16) / 2 - 1;
+                    ctx.drawItem(new net.minecraft.item.ItemStack(item), x, iconY);
+                }
+            } catch (Exception ignored) {}
+        }
     }
 
     private void renderResetPrompt(DrawContext ctx, int mx, int my) {
@@ -335,8 +380,6 @@ public final class ConfigScreen extends Screen {
 
         for (int i = start; i < end; i++) {
             ConfigOption opt = filtered.get(i);
-            if (opt.inputType() != ConfigOption.InputType.TEXT
-                    && opt.inputType() != ConfigOption.InputType.NUMBER) continue;
             if (!opt.compatible()) continue;
 
             int rowY     = listTop + 8 + (i - start) * ROW_HEIGHT;
@@ -344,31 +387,67 @@ public final class ConfigScreen extends Screen {
             int controlX = listX + 8 + (listW - 16) - controlWidth(opt) - 10;
             int controlY = rowY + (h - TEXT_INPUT_H) / 2;
 
-            TextFieldWidget tw = new TextFieldWidget(textRenderer,
-                    controlX - 14, controlY + 3, controlWidth(opt), TEXT_INPUT_H, Text.literal(opt.name()));
-            tw.setMaxLength(opt.inputType() == ConfigOption.InputType.NUMBER ? 10 : opt.maxTextLength());
-            tw.setText(pendingState.getOrDefault(opt.id(), opt.defaultValueString()));
-            tw.setDrawsBackground(false);
-
-            final String optId = opt.id();
-            final ConfigOption finalOpt = opt;
-            tw.setChangedListener(val -> {
-                if (finalOpt.inputType() == ConfigOption.InputType.NUMBER) {
-                    String cleaned = val.replaceAll("[^\\-0-9]", "");
-                    if (!cleaned.equals(val)) { tw.setText(cleaned); return; }
-                    try {
-                        int parsed = Integer.parseInt(cleaned);
-                        parsed = Math.max(finalOpt.minNumber(), Math.min(finalOpt.maxNumber(), parsed));
-                        pendingState.put(optId, String.valueOf(parsed));
-                    } catch (NumberFormatException ignored) {}
-                } else {
-                    pendingState.put(optId, val);
+            switch (opt.inputType()) {
+                case TEXT, NUMBER -> {
+                    TextFieldWidget tw = new TextFieldWidget(textRenderer,
+                            controlX - 14, controlY + 3, controlWidth(opt), TEXT_INPUT_H, Text.literal(opt.name()));
+                    tw.setMaxLength(opt.inputType() == ConfigOption.InputType.NUMBER ? 10 : opt.maxTextLength());
+                    tw.setText(pendingState.getOrDefault(opt.id(), opt.defaultValueString()));
+                    tw.setDrawsBackground(false);
+                    final String optId = opt.id();
+                    final ConfigOption finalOpt = opt;
+                    tw.setChangedListener(val -> {
+                        if (finalOpt.inputType() == ConfigOption.InputType.NUMBER) {
+                            String cleaned = val.replaceAll("[^\\-0-9]", "");
+                            if (!cleaned.equals(val)) { tw.setText(cleaned); return; }
+                            try {
+                                int parsed = Integer.parseInt(cleaned);
+                                parsed = Math.max(finalOpt.minNumber(), Math.min(finalOpt.maxNumber(), parsed));
+                                pendingState.put(optId, String.valueOf(parsed));
+                            } catch (NumberFormatException ignored) {}
+                        } else {
+                            pendingState.put(optId, val);
+                        }
+                        updateResetButtonState();
+                    });
+                    textWidgets.put(opt.id(), tw);
+                    addDrawableChild(tw);
                 }
-                updateResetButtonState();
-            });
-
-            textWidgets.put(opt.id(), tw);
-            addDrawableChild(tw);
+                case COLOR -> {
+                    int fieldX = controlX + COLOR_SWATCH + 3;
+                    int fieldW = COLOR_W - COLOR_SWATCH - 3;
+                    TextFieldWidget tw = new TextFieldWidget(textRenderer,
+                            fieldX, controlY + 2, fieldW, TEXT_INPUT_H - 2, Text.literal(opt.name()));
+                    tw.setMaxLength(7);
+                    tw.setDrawsBackground(false);
+                    tw.setText(pendingState.getOrDefault(opt.id(), opt.defaultColor()));
+                    final String optId = opt.id();
+                    tw.setChangedListener(val -> {
+                        String stored = val.startsWith("#") ? val : "#" + val;
+                        pendingState.put(optId, stored);
+                        updateResetButtonState();
+                    });
+                    textWidgets.put(opt.id(), tw);
+                    addDrawableChild(tw);
+                }
+                case ITEM -> {
+                    int fieldX = controlX + ITEM_ICON_W + 4;
+                    int fieldW = ITEM_W - ITEM_ICON_W - 4;
+                    TextFieldWidget tw = new TextFieldWidget(textRenderer,
+                            fieldX, controlY + 3, fieldW, TEXT_INPUT_H - 2, Text.literal(opt.name()));
+                    tw.setMaxLength(128);
+                    tw.setDrawsBackground(false);
+                    tw.setText(pendingState.getOrDefault(opt.id(), opt.defaultItem()));
+                    final String optId = opt.id();
+                    tw.setChangedListener(val -> {
+                        pendingState.put(optId, val.trim());
+                        updateResetButtonState();
+                    });
+                    textWidgets.put(opt.id(), tw);
+                    addDrawableChild(tw);
+                }
+                default -> {}
+            }
         }
     }
 
@@ -390,8 +469,10 @@ public final class ConfigScreen extends Screen {
             if (insideBounds(mx, my, bx + 124, by + 82, 80, 20))  { conflictPrompt = null; return true; }
             return true;
         }
-        if (primary && tryStartSliderDrag(mx, my)) return true;
-        if (primary && handleToggleClick(mx, my)) return true;
+        if (tryStartSliderDrag(mx, my)) return true;
+        if (handleToggleClick(mx, my)) return true;
+        if (handleColorSwatchClick(mx, my)) return true;
+        if (handleItemIconClick(mx, my)) return true;
         return super.mouseClicked(click, primary);
     }
 
@@ -458,6 +539,70 @@ public final class ConfigScreen extends Screen {
             int toggleY = rowY + (h - TOGGLE_H) / 2;
             if (insideBounds(mx, my, toggleX, toggleY, TOGGLE_W, TOGGLE_H)) {
                 requestToggle(opt);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean handleColorSwatchClick(double mx, double my) {
+        int listTop     = listTopY();
+        int listH       = height - 36 - listTop;
+        int visibleRows = Math.max(1, (listH - 16) / ROW_HEIGHT);
+        int start = scrollOffset;
+        int end   = Math.min(filtered.size(), start + visibleRows);
+        int listX = 20, listW = width - 40;
+
+        for (int i = start; i < end; i++) {
+            ConfigOption opt = filtered.get(i);
+            if (opt.inputType() != ConfigOption.InputType.COLOR) continue;
+            int rowY     = listTop + 8 + (i - start) * ROW_HEIGHT;
+            int h        = ROW_HEIGHT - 4;
+            int controlX = listX + 8 + (listW - 16) - controlWidth(opt) - 10;
+            int controlY = rowY + (h - TEXT_INPUT_H) / 2;
+            if (insideBounds(mx, my, controlX, controlY, COLOR_SWATCH, TEXT_INPUT_H)) {
+                String currentHex = pendingState.getOrDefault(opt.id(), opt.defaultColor());
+                final String optId = opt.id();
+                if (client != null) {
+                    client.setScreen(new ColorPickerPopup(this, currentHex, chosen -> {
+                        pendingState.put(optId, chosen);
+                        TextFieldWidget tw = textWidgets.get(optId);
+                        if (tw != null) tw.setText(chosen);
+                        updateResetButtonState();
+                    }));
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean handleItemIconClick(double mx, double my) {
+        int listTop     = listTopY();
+        int listH       = height - 36 - listTop;
+        int visibleRows = Math.max(1, (listH - 16) / ROW_HEIGHT);
+        int start = scrollOffset;
+        int end   = Math.min(filtered.size(), start + visibleRows);
+        int listX = 20, listW = width - 40;
+
+        for (int i = start; i < end; i++) {
+            ConfigOption opt = filtered.get(i);
+            if (opt.inputType() != ConfigOption.InputType.ITEM) continue;
+            int rowY     = listTop + 8 + (i - start) * ROW_HEIGHT;
+            int h        = ROW_HEIGHT - 4;
+            int controlX = listX + 8 + (listW - 16) - controlWidth(opt) - 10;
+            int controlY = rowY + (h - TEXT_INPUT_H) / 2;
+            if (insideBounds(mx, my, controlX, controlY, ITEM_ICON_W, TEXT_INPUT_H)) {
+                String current = pendingState.getOrDefault(opt.id(), opt.defaultItem());
+                final String optId = opt.id();
+                if (client != null) {
+                    client.setScreen(new ItemPickerPopup(this, current, chosen -> {
+                        pendingState.put(optId, chosen);
+                        TextFieldWidget tw = textWidgets.get(optId);
+                        if (tw != null) tw.setText(chosen);
+                        updateResetButtonState();
+                    }));
+                }
                 return true;
             }
         }
@@ -611,14 +756,15 @@ public final class ConfigScreen extends Screen {
             case SLIDER -> SLIDER_W;
             case TEXT   -> 120;
             case NUMBER -> NUM_W;
+            case COLOR  -> COLOR_W;
+            case ITEM   -> ITEM_W;
         };
     }
 
     private int controlHeight(ConfigOption opt) {
         return switch (opt.inputType()) {
-            case TOGGLE -> TOGGLE_H;
-            case SLIDER -> TOGGLE_H;
-            case TEXT, NUMBER -> TEXT_INPUT_H;
+            case TOGGLE, SLIDER            -> TOGGLE_H;
+            case TEXT, NUMBER, COLOR, ITEM -> TEXT_INPUT_H;
         };
     }
 
