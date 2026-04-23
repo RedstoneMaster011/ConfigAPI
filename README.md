@@ -4,7 +4,7 @@ A simple, flexible config screen API for Fabric mods. Drop in the JAR, register 
 
 **Supports:** Minecraft 1.21.6 – 1.21.11 · Fabric
 
-mod can be downloaded from modrinth: https://modrinth.com/mod/configuration_api
+mod can be downloaded from modrinth: https://modrinth.com/mod/configuration_api (if modrinth EVER puts it up cus its taking FOREVER)
 
 ---
 
