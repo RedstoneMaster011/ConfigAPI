@@ -42,7 +42,7 @@ The `include` line is important — it tells Fabric's loom to nest ConfigAPI ins
 
 ```json
 "depends": {
-"configapi": "*"
+    "configapi": "*"
 }
 ```
 
@@ -126,8 +126,8 @@ boolean toggle = ConfigState.getBoolean("my_mod", "my_feature");
 String  text   = ConfigState.getString ("my_mod", "my_text");
 int     number = ConfigState.getInt    ("my_mod", "my_number");
 float   slider = ConfigState.getFloat  ("my_mod", "my_slider");
-int     argb   = ConfigState.getColor  (MOD_ID, "my_color");
-String  itemId = ConfigState.getItem   (MOD_ID, "my_item");
+int     argb   = ConfigState.getColor  ("my_mod", "my_color");
+String  itemId = ConfigState.getItem   ("my_mod", "my_item");
 ```
 
 ### 3. Write values programmatically (optional)
